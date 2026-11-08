@@ -2,7 +2,7 @@
 
 > A hands-on Security Operations Center (SOC) lab built on **Wazuh SIEM** — deploying the platform, monitoring an endpoint, simulating real attacks from two separate attacker machines, and detecting and investigating them like a SOC analyst.
 
-![Architecture Diagram](screenshots/01-architecture.png)
+![Architecture Diagram](screenshots/architecture.jpeg)
 
 ---
 
@@ -62,20 +62,17 @@ SSH login attempts  →  /var/log/auth.log  (Ubuntu target)
 I deployed the Wazuh central components on Ubuntu — Indexer, Manager, and Dashboard — secured with TLS certificates between components, and configured Filebeat to ship alerts into the Indexer for the dashboard to visualize.
 
 **Wazuh dashboard login (TLS-secured web UI):**
-![Wazuh login](screenshots/02-wazuh-login.png)
+![Wazuh login](screenshots/Screenshot%202026-09-24%20062812.png)
 
 **Core services running — Indexer and Dashboard:**
-![Indexer active](screenshots/03-indexer-active.png)
-![Dashboard active](screenshots/04-dashboard-active.png)
-
-**TLS certificate/key pair verified for the dashboard, listening on 443:**
-![Dashboard cert verify](screenshots/07-dashboard-cert-verify.png)
+![Indexer active](screenshots/Screenshot%202026-09-25%20025256.png)
+![Dashboard active](screenshots/Screenshot%202026-09-25%20025316.png)
 
 **Wazuh overview console:**
-![Wazuh overview](screenshots/06-wazuh-overview.png)
+![Wazuh overview](screenshots/Screenshot%202026-09-24%20120631.png)
 
 **All components active and the host on the bridged LAN (`192.168.0.192`):**
-![Services active](screenshots/08-services-active.png)
+![Services active](screenshots/Screenshot%202026-09-28%20104729.png)
 
 ---
 
@@ -84,24 +81,21 @@ I deployed the Wazuh central components on Ubuntu — Indexer, Manager, and Dash
 OpenSSH was enabled on the target so authentication attempts are logged and monitored.
 
 **SSH server active and listening on port 22:**
-![SSH active](screenshots/05-ssh-active.png)
+![SSH active](screenshots/Screenshot%202026-09-25%20025955.png)
 
 ### Attacker 1 — Windows (manual)
 Repeated SSH login attempts from Windows PowerShell as a non-existent user:
 ```powershell
 ssh hacker@192.168.0.192
 ```
-![Windows SSH attack](screenshots/10-windows-ssh-attack.png)
+![Windows SSH attack](screenshots/Screenshot%202026-09-28%20105304.png)
 
 ### Attacker 2 — Kali Linux (automated with Hydra)
 A real automated brute-force using THC-Hydra against SSH:
 ```bash
 hydra -l hacker -P pass.txt ssh://192.168.0.192 -t 4
 ```
-![Kali Hydra attack](screenshots/11-kali-hydra-attack.png)
-
-**Underlying failed-login events captured in the host's auth log:**
-![Auth log failed logins](screenshots/09-auth-log-failed-logins.png)
+![Kali Hydra attack](screenshots/Screenshot%202026-09-28%20114611.png)
 
 ---
 
@@ -115,16 +109,16 @@ Wazuh detected **both** attackers and correlated the activity.
 | **5712** | sshd: Brute force trying to get access to the system | **10** | T1110.001 – Password Guessing |
 
 **Threat Hunting dashboard — alerts and Top MITRE ATT&CK techniques:**
-![Threat hunting dashboard](screenshots/12-threat-hunting-dashboard.png)
+![Threat hunting dashboard](screenshots/Screenshot%202026-09-27%20053616.png)
 
 **Security events — repeated 5710 attempts correlated into the level-10 brute-force rule 5712:**
-![Detection events 5710 / 5712](screenshots/13-detection-events-5710-5712.png)
+![Detection events 5710 / 5712](screenshots/Screenshot%202026-09-28%20110951.png)
 
 **Investigating the Windows attacker — source IP `192.168.0.10`:**
-![Windows attack detail](screenshots/14-windows-attack-detail.png)
+![Windows attack detail](screenshots/Screenshot%202026-09-28%20111446.png)
 
 **Investigating the Kali attacker — source IP `192.168.0.238`:**
-![Kali attack detail](screenshots/15-kali-attack-detail.png)
+![Kali attack detail](screenshots/Screenshot%202026-09-28%20114848.png)
 
 > The level-10 rule (5712) is the key SOC signal: Wazuh didn't just log individual failures — it recognized the *pattern* of repeated failures as a brute-force attack and raised a high-severity, correlated alert. Each alert carries the attacker's **source IP, username, port, and the raw log line** for investigation.
 
